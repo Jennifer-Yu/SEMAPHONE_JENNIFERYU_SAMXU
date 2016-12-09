@@ -35,10 +35,8 @@ int main(int argc, char* argv[]) {
   }
 
   else if (strncmp(argv[1], "-v", strlen(argv[1])) == 0) {
-    int value = atoi(argv[2]);
-    int i = semctl(semid, 0, SETVAL, su);  
-    printf("set value: %d\n", i);
-    i = semctl(semid, 0, GETVAL);
+    semid = semget(key, 1, 0);
+    int i = semctl(semid, 0, GETVAL);
     printf("semaphore value: %d\n", i);
   }
   
