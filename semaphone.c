@@ -1,4 +1,4 @@
-//Jennifer Yu
+//Jennifer Yu and Sam Xu
 //12-07-16
 
 #include <stdio.h>
