@@ -13,14 +13,14 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-union semun{
+union semun {
   int val;
   struct semi_ds *buf;
   unsigned short *array;
   struct seminfo *_buf;
 };
 
-void semU(int semid){
+void semU(int semid) {
   struct sembuf operation;
   operation.sem_op = 1;
   operation.sem_num = 1;
@@ -28,7 +28,7 @@ void semU(int semid){
   semop(semid, &operation, 1);
 }
 
-void semD(int semid){
+void semD(int semid) {
   struct sembuf operation;
   operation.sem_op = -1;
   operation.sem_num = 1;
@@ -36,11 +36,11 @@ void semD(int semid){
   semop(semid, &operation, 1);
 }
 
-void pLine(int *shm){
+void pLine(int *shm) {
   int fd;
   int temp = * shm;
   char buf[temp + 1];
-  
+
   fd = open("story.txt", O_RDONLY, 0644);
   lseek(fd, (-1 * temp), SEEK_END);
   read(fd, &buf, temp);
@@ -50,7 +50,7 @@ void pLine(int *shm){
   close(fd);
 }
 
-void getAddLine(int *shm){
+void getAddLine(int *shm) {
   char buf[1024];
   char * dest = buf;
   int fd;
@@ -58,12 +58,12 @@ void getAddLine(int *shm){
 
   printf("Enter next line: ");
   fgets(dest, 1024, stdin);
-  
+
   len = strlen(buf);
   *shm = len;
-  
+
   fd = open("story.txt", O_WRONLY | O_APPEND, 0644);
-  
+
   write(fd, buf, len);
   close(fd);
 
@@ -79,7 +79,6 @@ int main() {
   semU(semid);
   pLine(len);
   getAddLine(len);
-  
-  
+
   return 1337;
 }
