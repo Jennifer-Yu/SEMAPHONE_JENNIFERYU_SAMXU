@@ -20,16 +20,23 @@ union semun {
   struct seminfo *_buf;
 };
 
-int openFile(){
-  int fd;
-  if( access( "story.txt", F_OK ) != -1 ) {
-    fd = open("story.txt", O_RDWR | O_TRUNC);
-  }
-  else{
-    fd = open("story.txt", O_RDWR | O_CREAT, 0644);
-  }
-  printf("File opened, file descriptor: %d\n",fd);
-  return fd;
+int getSize(){
+  struct stat fileIn;
+  stat("story.txt", &fileIn);
+  return fileIn.st_size;
+}
+
+void printStory(){
+  int len = getSize();
+  printf("len: %d\n", len);
+  char buf[len + 25];
+  
+  int fd = open("story.txt", O_RDONLY, 0644);
+  read(fd, &buf, getSize());
+  buf[len] = 0;
+  
+  printf("Story: %s\n", buf);
+  close(fd);
 }
 
 int main(int argc, char* argv[]) {
@@ -37,7 +44,8 @@ int main(int argc, char* argv[]) {
   int shmid;
   int key = ftok("makefile", 5);
   int sc;
-  int fd = openFile();
+  int fd;
+  int *shm;
   struct shmid_ds d;
   union semun su;
   
@@ -62,13 +70,16 @@ int main(int argc, char* argv[]) {
     }else{
       printf("Error: unable to create shm");
     }
+    shm = shmat(shmid, 0, 0);
+    *shm = 0;
+
+    //setting up file
+    int fd = open("story.txt", O_CREAT | O_TRUNC, 0644);
+    close(fd);
   }
   
   else if (strncmp(argv[1], "-v", strlen(argv[1])) == 0) {
-    char buf[256];
-    printf("Finding %ld\n", lseek(fd,0, SEEK_SET));
-    read(fd, buf, 256);
-    printf("%s\n",buf);
+    printStory();
   }
   
   else if ( strncmp(argv[1], "-r", strlen(argv[1]) ) == 0) {
@@ -82,7 +93,11 @@ int main(int argc, char* argv[]) {
     shmctl(shmid, IPC_RMID, &d);
     printf("removed shm: %d\n", shmid);
 
-    close(3);
+    printStory();
+    int fd = open("story.txt", O_CREAT | O_TRUNC, 0644);
+    close(fd);
+  }else{
+    printf("No arguments. Use -c for create, -v for view, -r for remove.\n");
   }
     
   return 0;
