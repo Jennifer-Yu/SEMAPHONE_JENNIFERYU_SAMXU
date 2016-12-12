@@ -1,16 +1,18 @@
-compile: semaphone.c
-	gcc -o phonecall semaphone.c -Wall
+compile: semacontrol.c
+	gcc semacontrol.c -o semacontrol
+	gcc semaclient.c -o semaclient
 
 create: phonecall
-	./phonecall -c
+	./semacontrol -c
 
 view: phonecall
-	./phonecall -v
+	./semacontrol -v
 
 remove: phonecall
-	./phonecall -r
+	./semacontrol -r
 
 clean:
-	rm ./phonecall
+	rm ./semacontrol
+	rm ./semaclient
 	rm *.o
 	rm *~
