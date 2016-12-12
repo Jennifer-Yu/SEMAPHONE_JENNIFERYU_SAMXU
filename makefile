@@ -2,17 +2,20 @@ compile: semacontrol.c
 	gcc semacontrol.c -o semacontrol
 	gcc semaclient.c -o semaclient
 
-create: phonecall
+create: semacontrol
 	./semacontrol -c
 
-view: phonecall
+view: semacontrol
 	./semacontrol -v
 
-remove: phonecall
+remove: semacontrol
 	./semacontrol -r
+
+stat:
+	ipcs -s
+	ipcs -m
 
 clean:
 	rm ./semacontrol
 	rm ./semaclient
-	rm *.o
 	rm *~
