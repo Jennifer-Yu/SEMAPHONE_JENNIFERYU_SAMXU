@@ -20,21 +20,21 @@ union semun {
   struct seminfo *_buf;
 };
 
-int getSize(){
+int getSize() {
   struct stat fileIn;
   stat("story.txt", &fileIn);
   return fileIn.st_size;
 }
 
-void printStory(){
+void printStory() {
   int len = getSize();
   printf("len: %d\n", len);
   char buf[len + 25];
-  
+
   int fd = open("story.txt", O_RDONLY, 0644);
   read(fd, &buf, getSize());
   buf[len] = 0;
-  
+
   printf("Story: %s\n", buf);
   close(fd);
 }
@@ -48,13 +48,19 @@ int main(int argc, char* argv[]) {
   int *shm;
   struct shmid_ds d;
   union semun su;
-  
+
+  if (argv[1] == NULL) {
+    printf("No arguments. Use -c for create, -v for view, -r for remove.\n");
+		return 0;
+	}
+
   if (strncmp(argv[1], "-c", strlen(argv[1])) == 0) {
     //Creating semaphore
     semid = semget(key, 1, IPC_CREAT | 0644);
-    if(semid >= 0){
+    if (semid >= 0) {
       printf("semaphore created: %d\n", semid);
-    }else{
+    }
+    else {
       printf("Error: unable to create semaphore");
     }
 
@@ -65,9 +71,10 @@ int main(int argc, char* argv[]) {
 
     //Creating shared mem
     shmid = shmget(key, 8, IPC_CREAT | 0644);
-    if(shmid >= 0){
+    if (shmid >= 0) {
       printf("shm created: %d\n", shmid);
-    }else{
+    }
+    else {
       printf("Error: unable to create shm");
     }
     shm = shmat(shmid, 0, 0);
@@ -77,12 +84,12 @@ int main(int argc, char* argv[]) {
     int fd = open("story.txt", O_CREAT | O_TRUNC, 0644);
     close(fd);
   }
-  
+
   else if (strncmp(argv[1], "-v", strlen(argv[1])) == 0) {
     printStory();
   }
-  
-  else if ( strncmp(argv[1], "-r", strlen(argv[1]) ) == 0) {
+
+  else if (strncmp(argv[1], "-r", strlen(argv[1]) ) == 0) {
     //removing sempahore
     semid = semget(key,1,0);
     sc = semctl(semid, 0 , IPC_RMID);
@@ -96,10 +103,12 @@ int main(int argc, char* argv[]) {
     printStory();
     int fd = open("story.txt", O_CREAT | O_TRUNC, 0644);
     close(fd);
-  }else{
+  }
+
+  else {
     printf("No arguments. Use -c for create, -v for view, -r for remove.\n");
   }
-    
+
   return 0;
 
 }
